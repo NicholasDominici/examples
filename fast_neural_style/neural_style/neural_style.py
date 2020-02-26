@@ -41,6 +41,7 @@ def train(args):
         transforms.ToTensor(),
         transforms.Lambda(lambda x: x.mul(255))
     ])
+
     train_dataset = datasets.ImageFolder(args.dataset, transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size)
 
@@ -65,6 +66,7 @@ def train(args):
         agg_content_loss = 0.
         agg_style_loss = 0.
         count = 0
+
         for batch_id, (x, _) in enumerate(train_loader):
             n_batch = len(x)
             count += n_batch
@@ -104,9 +106,11 @@ def train(args):
                 )
                 print(mesg)
 
+            # Creates Checkpoint for model
+            # DOES NOT WORK
             if args.checkpoint_model_dir is not None and (batch_id + 1) % args.checkpoint_interval == 0:
                 transformer.eval().cpu()
-                ckpt_model_filename = "simpckpt_" + \
+                ckpt_model_filename = "starryckpt_" + \
                     str(batch_id + 1) + ".pth"
                 ckpt_model_path = os.path.join(
                     args.checkpoint_model_dir, ckpt_model_filename)
@@ -115,9 +119,9 @@ def train(args):
 
     # save model
     transformer.eval().cpu()
-    # save_model_filename = "epoch_" + str(args.epochs) + "_" + str(time.ctime()).replace(' ', '_') + "_" + str(
-    #    args.content_weight) + "_" + str(args.style_weight) + ".model"
-    save_model_filename = "simp.model"
+
+    # Save model with name ending in .model
+    save_model_filename = "starry.model"
     save_model_path = os.path.join(args.save_model_dir, save_model_filename)
     torch.save(transformer.state_dict(), save_model_path)
 
@@ -213,7 +217,7 @@ def main():
                                   help="weight for style-loss, default is 1e10")
     train_arg_parser.add_argument("--lr", type=float, default=1e-3,
                                   help="learning rate, default is 1e-3")
-    train_arg_parser.add_argument("--log-interval", type=int, default=500,
+    train_arg_parser.add_argument("--log-interval", type=int, default=1000,
                                   help="number of images after which the training loss is logged, default is 500")
     train_arg_parser.add_argument("--checkpoint-interval", type=int, default=2000,
                                   help="number of batches after which a checkpoint of the trained model will be created")
